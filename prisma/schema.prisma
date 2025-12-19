@@ -1,0 +1,70 @@
+// Prisma schema for Dev Diary App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now()) @map("created_at")
+  entries   Entry[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  color     String     @default("#8b5cf6")
+  createdAt DateTime   @default(now()) @map("created_at")
+  entries   EntryTag[]
+
+  @@map("tags")
+}
+
+model Entry {
+  id         Int         @id @default(autoincrement())
+  title      String
+  content    String?
+  categoryId Int?        @map("category_id")
+  isPinned   Boolean     @default(false) @map("is_pinned")
+  isFavorite Boolean     @default(false) @map("is_favorite")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  tags       EntryTag[]
+  attachments Attachment[]
+
+  @@map("entries")
+}
+
+model EntryTag {
+  entryId Int   @map("entry_id")
+  tagId   Int   @map("tag_id")
+  entry   Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([entryId, tagId])
+  @@map("entry_tags")
+}
+
+model Attachment {
+  id           Int      @id @default(autoincrement())
+  entryId      Int      @map("entry_id")
+  filename     String
+  originalName String   @map("original_name")
+  mimeType     String?  @map("mime_type")
+  size         Int?
+  createdAt    DateTime @default(now()) @map("created_at")
+  entry        Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
