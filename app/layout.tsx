@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/Layout/Sidebar";
+import { ClientLayout } from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
   title: "Dev Diary - 開発日記",
@@ -12,6 +12,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const password = process.env.APP_PASSWORD || 'diary123';
+
   return (
     <html lang="ja">
       <head>
@@ -21,12 +23,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="app-container">
-          <Sidebar />
-          <main className="main-content">
-            {children}
-          </main>
-        </div>
+        <ClientLayout password={password}>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );
